@@ -1,0 +1,185 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+     .nav {
+      background-color: #9052b9; 
+      overflow: hidden;
+      padding: 10px; 
+      border-radius: 5px;
+      text-align: center;
+      transition: background-color 0.3s ease;
+    }
+    .nav:hover {
+    background-color: #7a3998;
+    }
+    .welcome {
+      color: #f5efe0;
+      margin-top: 7px;
+      font-size: 30px;
+    }
+    .post-list {
+      margin: 20px;
+    }
+    p{
+      font-family: 'Times New Roman', Times, serif;
+    }
+    .post {
+      background-color: #d7bbf9;
+      border-bottom: 1px solid #ddd;
+      padding: 10px;
+      margin-bottom: 20px;
+      display: flex;
+      transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
+    }
+    .post:hover {
+    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
+    }
+    .post-title {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .post-author {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 10px;
+    }
+    .post-body {
+      font-size: 16px;
+      line-height: 1.5;
+    }
+    .post-content {
+      flex: 1;
+    }
+    .read-more {
+      background-color: #8646b1;
+      color: rgba(255, 255, 255, 0.941);
+      padding: 8px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: inline-block;
+      margin-top: 10px;
+      transition: background-color 0.3s ease;
+    }
+    .post-thumbnail {      
+      max-width: 150px;
+      height: 100px;
+      border-radius: 10px;
+      margin-right: 20px;
+      transition: transform 0.3s ease-out;
+    }
+    .post-thumbnail:hover {
+    transform: scale(1.1);
+    }
+    .about-blog {
+      background-color: #aab1b8;
+      padding: 20px;
+      border-radius: 5px;
+      margin-top: 25px;
+      transition: transform 0.3s ease-out;
+    }
+    .about-blog:hover {
+    transform: scale(1.02);
+    }
+    .post-actions a {
+      margin-right: 5px;
+    }
+    .like-section {
+      display: inline-flex;
+      align-items: center;
+      margin-top: 12px;
+    }
+    .like-section i {
+      color: #9052b9;
+      margin-right: 7px;
+    }
+    .comment-section {
+      margin-top: 8px;
+    }
+    .social-media {
+      display: flex;
+      gap: 15px;
+      margin-top: 10px;
+    }
+    .social-media a {
+      display: inline-flex;
+      align-items: center;
+      text-decoration: none;
+      color: inherit;
+    }
+    .social-media i {
+      margin-right: 8px; 
+      font-size: 22px; 
+      transition: color 0.3s ease;
+    }
+    .social-media a:hover i {
+      color: #5318a5;
+    }
+</style>
+<body>
+  <br>
+  <nav class="nav">
+    <p class="welcome">Welcome to our Blog!</p>
+  </nav>
+<div class="row">
+  <div class="col-md-8">
+    <div class="post-list">
+      {% for post, total_likes in posts_with_likes %} 
+        <div class="post">
+          {% if post.header_image %}
+            <img src="{{ post.header_image.url }}" class="post-thumbnail" alt="Post Image" style="height: 100px; width: 100px;">
+         {% endif %}
+      <div class="post-content">
+        <h2 class="post-title">{{ post.title }}</h2> {{ post.category }}
+        <p class="post-author">   
+          {{ post.author.first_name }} - {{ post.post_date|date:"d M, Y" }}
+        </p>
+        <p class="post-body">{{ post.body | safe | truncatewords:20 }}...</p>
+        <a href="{% url 'post-detail' post.pk %}" class="read-more"> Read More </a>
+        <span style="margin-left: 10px;">  </span>
+        <span class="like-section">
+          <i class="fas fa-thumbs-up"></i> {{ total_likes }}
+      </span>
+      <div class="comment-section"> <i class="fa fa-comment"></i> 
+        Comments : {{ post.comments.count }} 
+        {% if user.is_authenticated %}
+        <span style="margin-left: 12px;">  </span>
+          <a href="{% url 'update_post' post.pk %}">Edit</a> |
+          <a href="{% url 'delete_post' post.pk %}">Delete</a>
+        {% endif %}
+         </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>  
+<div class="col-md-4">
+  {% if request.path == '/' %}
+  <div class="about-blog">
+    <h4><i class="fa fa-book"></i> About Blog</h4><hr>
+      <p>Welcome to our blog! Here we share interesting articles and updates.
+        This Awesome blog is made on the top of our full stack framework Django.
+      </p>
+      <h5> <i class="fa fa-calendar"></i> Calendar</h5>
+      <div id="calendar">
+      <input type="text" id="datepicker" class="form-control" placeholder="Select date">
+      </div><br>
+      <h5> <i class="fa fa-bullhorn"></i> Announcements</h5>
+      <ul class="list-unstyled">
+      <li>Check out our latest event on July 20th!</li>
+      <li>New feature updates coming next week!</li>
+      </ul>
+      <h5><i class="fa fa-users"></i> Social Media</h5>
+    <div class="social-media">
+      <a href="https://www.linkedin.com/in/isha-6b739922b?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app">
+        <i class="fab fa-linkedin"></i> Linkedin</a><br>
+      <a href="#"><i class="fab fa-twitter-square"></i> Twitter</a><br>
+      <a href="#"><i class="fab fa-instagram-square"></i> Instagram</a>
+    </div>
+    </div>
+  {% endif %}
+  </div>
+ </div>
+</body>
+{% endblock content %}  

@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+  
+{% block content %}
+<style>
+  .post {
+    padding: 10px;
+    margin-bottom: 20px;
+    display: flex;
+  }
+  .post-title {
+    flex: 1;
+    margin: 0;
+    font-size: 2rem;
+  }
+  body{
+    margin: auto;
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    overflow: auto;
+    background: linear-gradient(315deg, rgb(186, 181, 17) 3%, rgb(205, 84, 193) 38%, rgba(48,238,226,1) 68%, rgb(252, 183, 23) 98%);
+    animation: gradient 15s ease infinite;
+    background-size: 400% 400%;
+    background-attachment: fixed;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  }  
+  @keyframes gradient {
+    0% {
+        background-position: 0% 0%;
+    }
+    50% {
+        background-position: 100% 100%;
+    }
+    100% {
+        background-position: 0% 0%;
+    }
+  }
+  .card-body{
+    background-color: #c8d1d8;
+  }
+  .btn-back-home {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 15px;
+    font-size: 16px;
+    color: #fff;
+    background-color: #6c757d;
+    border: none;
+    border-radius: 5px;
+    text-decoration: none;
+  }
+.btn-back-home:hover {
+    background-color: #5a6268; /* Darker shade for hover effect */
+    transform: scale(1.05);  
+  }
+  .btn-like {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    font-size: 14px;
+    color: #fff;
+    background-color: #007bff; 
+    border: none;
+    border-radius: 5px;
+    text-decoration: none;
+  }
+  .btn-like i {
+    margin-right: 6px;
+    font-size: 16px;
+  }
+  .btn-like:hover {
+    background-color: #0056b3; /* Darker shade for hover effect */
+    transform: scale(1.05);
+  }
+  .recent-posts {
+    background-color: #ced8e1;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    padding: 20px;
+    border-radius: 5px;
+    margin-top: 10px;
+    margin-left: 100px;
+    width: 110%;
+  }
+  .recent-posts hr {
+    border: none;
+    height: 2px;
+    background-color: #e6ad12fa;
+    margin: 10px 0;
+  }
+  .recent-post {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  .recent-post a {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: inherit;
+  }
+  .recent-post img.round-image {
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    margin-right: 15px;
+  }
+  .post-content {
+    flex-grow: 1;
+  }
+.post-meta {
+    font-size: 14px;
+    color: #666;
+  }
+</style>
+<body>
+<div class="container mt-4 post-detail-page">
+  <div class="row">
+    <div class="col-md-8">
+      <article class="post-detail">
+        <header>
+          <h1 class="post-title">{{ post.title }}</h1>
+          <p class="post-meta">
+            By {{ post.author.first_name }} - {{ post.post_date }}
+            {% if user.is_authenticated %}     
+              <a href="{% url 'update_post' post.pk %}" class="btn btn-sm btn-outline-primary">Edit</a>  
+            {% endif %}
+          </p><hr>
+        </header>
+      {% if post.header_image %}
+        <img src="{{ post.header_image.url }}" class="post-thumbnail-detail" class="img-fluid mb-4" alt="Post Image" style="height: 350px; width: 700px;">
+      {% endif %}
+      <br>
+      <div class="post-body">
+        {{ post.body |safe }}
+      </div>
+    </article>
+    <hr>
+    <form action="{% url 'like_post' post.pk %}" method="POST" class="d-inline">
+      {% csrf_token %}
+      <button type="submit" name="post_id" value="{{ post.id }}" class="btn btn-primary btn-sm btn-like" >
+        <i class="fa {% if user.is_authenticated and liked %}fa-thumbs-down
+        {% else %} fa-thumbs-up{% endif %}"></i>
+      {% if user.is_authenticated and liked %}
+        Unlike
+      {% else %}
+        Like
+      {% endif %}
+      </button>
+      <span class="ml-2">{{ total_likes }} Likes</span>
+    </form>
+    <div class="mt-4">
+      <a href="{% url 'home' %}" class="btn btn-secondary">
+        <i class="fa fa-home"></i> Back to Home</a>
+      </div><hr>
+    <section class="comments">
+      <h3> Comments </h3>
+      {% if not post.comments.all %}
+        <p>No Comments Yet...<a href="{% url 'add_comment' post.pk %}">Be the first to comment! </a></p>
+      {% else %}
+        {% for comment in post.comments.all %}
+          <div class="comment mb-4">
+            <div class="card">
+              <div class="card-body">
+              <h5 class="card-title">{{ comment.name }}</h5>
+              <p class="card-subtitle mb-2 text-muted">{{ comment.date_added }}</p>
+            <p class="card-text">{{ comment.body }}</p>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  {% endif %}
+  <a href="{% url 'add_comment' post.pk %}" class="btn btn-primary">Add a Comment</a>
+</section>
+</div>
+<div class="col-md-4">
+{% block sidebar %}
+  <div class="recent-posts">
+    <h3><i class="fa fa-tags"></i> Related Posts</h3><hr>
+    {% for recent_post in recent_posts %}
+      <div class="recent-post">
+        <a href="{% url 'post-detail' recent_post.pk %}">
+          <img src="{{ recent_post.header_image.url }}"  class="round-image">
+          <div class="post-content">
+          <h5>{{ recent_post.title }}</h5>
+        <p class="post-meta">
+          By {{ recent_post.author.first_name }} - {{ recent_post.post_date }}
+        </p>
+      </div>
+    </a>
+    </div>
+    {% endfor %}
+  </div>
+  {% endblock sidebar %}</div>
+</div>
+</div>
+</body>
+{% endblock content %}
+

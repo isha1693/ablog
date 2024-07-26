@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block title %} Edit Blog Post {% endblock %}
+
+{% block content %}
+<head>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #5b5d5f;
+        }
+        .form-container {
+            max-width: 500px;
+            margin: auto;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: rgb(229, 220, 220);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .form-container h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .form-container button {
+            width: 100%;
+            background-color: #28a745;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .form-container button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<div class="container mt-5">
+{% if user.is_authenticated %}  
+    <div class="form-container">
+      <h1>Update Blog Post </h1> 
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.media }}
+            {{ form.as_p }}
+            <div class="form-group">
+                <label for="header_image">Update Image:</label>
+                <input type="file" name="header_image" id="header_image" class="form-control">
+            </div>
+            <button class="btn btn-secondary">Update</button>
+        </form>
+    </div>
+    {% else %}
+    You are not allowed here!
+
+    {% endif %}
+</div>   
+{% endblock content %}
